@@ -143,15 +143,37 @@ function mouseHold(event) {
 function mouseMove(event) {
     var prevX = 0;
     var prevY = 0;
-
+    var pos = getMousePos(event);
     if(shouldDraw) {
-       var pos = getMousePos(event);
        endX =  pos.x;
        endY = pos.y;
        //console.log(`posx ${pos.x} posy ${pos.y}`);
        drawSelection(startX, startY, endX - startX, endY - startY);
        showBBInfo();
     }
+
+    withinTheBB(pos, output.annotes);
+
+}
+
+function withinTheBB(currentPos,listOfBB){
+  for( var i = 0; i < listOfBB.length; i++ ){
+    scale = {
+        width: document.getElementById('canvas-holder').clientWidth,
+        height: document.getElementById('canvas-holder').clientHeight
+    };
+    var obj = listOfBB[i];
+    var loc = denormalizeBox(obj, scale);
+
+    if(ifWithinTheBB(currentPos,obj,scale)){
+      x = loc.startX;
+      y = loc.startY;
+      w = loc.endX - x;
+      h = loc.endY - y;
+      drawSelection(x, y, w, h);
+      //listOfBB.remove(i);
+    }
+  }
 }
 
 
@@ -164,8 +186,15 @@ function ifWithinTheBB(pos, item, scale ){
   {
     if(pos.y >= boundingBoxStartY && pos.y <= boundingBoxEndY)
     {
-      console.log(" within the box, caught ya! ");
+      //console.log(" within the box, caught ya! ");
+      return true;
     }
+    else {
+      return false;
+    }
+  }
+  else {
+    return false;
   }
 }
 
