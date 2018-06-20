@@ -35,7 +35,7 @@ window.onload = function() {
     mCanvas.addEventListener('imageRendered', redrawBBs);
     console.log('I/canvas: imageRendered event added');
     renderImage(mCanvas);
-  
+
     console.log('I/canvas: image rendered');
     canvas.onmousedown = mouseHold;
     canvas.onmousemove = mouseMove;
@@ -89,7 +89,7 @@ function saveItem() {
             endX: endX,
             endY: endY
         },
-        
+
         classname: classname,
         labels: labels
     }
@@ -112,22 +112,23 @@ function renderImage(target) {
         width:  parseInt(document.getElementById('img-true-w').innerHTML),
         height: parseInt(document.getElementById('img-true-h').innerHTML)
     }
-    
+
     if(typeof currImg.name != 'undefined') {
         image.src = picDir + currImg.name;
- 
+
         image.onload = function() {
             mC.drawImage(image, 0, 0, currImg.width, currImg.height,
                                 0, 0, mC.canvas.width, mC.canvas.height);
-            
+
             target.dispatchEvent(event);
             console.log('Image rendered successfully');
             console.log(`I/canvas: Height: ${mCanvas.height} Width: ${mCanvas.width}`);
-            
+
         };
     }
-    
+
 }
+
 
 
 function mouseHold(event) {
@@ -136,13 +137,13 @@ function mouseHold(event) {
     startX = pos.x;
     startY = pos.y;
     console.log(`currX ${startX} currY ${startY}`);
-
 }
 
 
 function mouseMove(event) {
     var prevX = 0;
     var prevY = 0;
+
     if(shouldDraw) {
        var pos = getMousePos(event);
        endX =  pos.x;
@@ -151,6 +152,21 @@ function mouseMove(event) {
        drawSelection(startX, startY, endX - startX, endY - startY);
        showBBInfo();
     }
+}
+
+
+function ifWithinTheBB(pos, item, scale ){
+  var boundingBoxStartX = item.location.startX;
+  var boundingBoxStartY = item.location.startY;
+  var boundingBoxEndX = item.location.endX;
+  var boundingBoxEndY = item.location.endY;
+  if(pos.x >= boundingBoxStartX && pos.x <= boundingBoxEndX)
+  {
+    if(pos.y >= boundingBoxStartY && pos.y <= boundingBoxEndY)
+    {
+      console.log(" within the box, caught ya! ");
+    }
+  }
 }
 
 
@@ -185,7 +201,7 @@ function drawBB(x, y, w, h) {
     clearCanvas(c);
     c.globalAlpha = 1;
     c.rect(x, y, w, h);
-    c.stroke();    
+    c.stroke();
     c.globalAlpha = 0.5;
 }
 
@@ -268,7 +284,7 @@ function redrawBBs() {
         };
         for(var i = 0; i < output.annotes.length; i++) {
             var bb = denormalizeBox(output.annotes[i], scale);
-            
+
             console.log('I/onResume: redrawing canvas...');
             if(typeof bb != 'undefined'){
                 saveBB(bb.startX, bb.startY,
@@ -349,7 +365,7 @@ function normalizeBox(item, scale) {
 
 
 function denormalizeBox(item, scale) {
-    
+
     var location = JSON.parse(JSON.stringify(item.location)); //deep copy
     var W = scale.width/currImg.width;
     var H = scale.height/currImg.height;
