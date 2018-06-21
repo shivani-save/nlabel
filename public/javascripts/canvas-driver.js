@@ -6,6 +6,7 @@ var mCanvas, mC;
 const picDir = '/data/pictures/';
 var currImg;
 var shouldDraw = false;
+var selected = false;
 var startX = 0;
 var startY = 0;
 var endX = 0;
@@ -30,6 +31,7 @@ window.onload = function() {
     c.fillStyle = "blue";
     c.globalAlpha = 0.5;
     mC.strokeStyle = "green";
+    mC.fillStyle = "green";
     console.log('I/canvas: Both canvases ready');
     // custom event triggered after image is rendered on main canvas
     mCanvas.addEventListener('imageRendered', redrawBBs);
@@ -137,6 +139,25 @@ function mouseHold(event) {
     startX = pos.x;
     startY = pos.y;
     console.log(`currX ${startX} currY ${startY}`);
+    //selected = !selected;
+    var index = withinTheBB(pos, output.annotes);
+    if( index != -1)
+    {
+      scale = {
+          width: document.getElementById('canvas-holder').clientWidth,
+          height: document.getElementById('canvas-holder').clientHeight
+      };
+      var obj = output.annotes[index];
+      var loc = denormalizeBox(obj, scale);
+      x = loc.startX;
+      y = loc.startY;
+      w = loc.endX - x;
+      h = loc.endY - y;
+      selected = !selected;
+
+      drawSelectedSelection(x, y, w, h);
+
+    }
 }
 
 
@@ -152,7 +173,26 @@ function mouseMove(event) {
        showBBInfo();
     }
 
-    withinTheBB(pos, output.annotes);
+    var index = withinTheBB(pos, output.annotes);
+    if(index == -1){
+    clearCanvas(c);
+  }
+    else {
+        scale = {
+            width: document.getElementById('canvas-holder').clientWidth,
+            height: document.getElementById('canvas-holder').clientHeight
+        };
+        var obj = output.annotes[index];
+        var loc = denormalizeBox(obj, scale);
+        x = loc.startX;
+        y = loc.startY;
+        w = loc.endX - x;
+        h = loc.endY - y;
+        drawSelection(x, y, w, h);
+        //drawSelectedSelection(x, y, w, h);
+
+
+  }
 
 }
 
@@ -166,14 +206,11 @@ function withinTheBB(currentPos,listOfBB){
     var loc = denormalizeBox(obj, scale);
 
     if(ifWithinTheBB(currentPos,obj,scale)){
-      x = loc.startX;
-      y = loc.startY;
-      w = loc.endX - x;
-      h = loc.endY - y;
-      drawSelection(x, y, w, h);
-      //listOfBB.remove(i);
+      return i;
     }
+
   }
+  return -1;
 }
 
 
@@ -205,6 +242,7 @@ function mouseRelease(event) {
     endX =  pos.x;
     endY = pos.y;
     console.log(`posx ${pos.x} posy ${pos.y}`);
+    selected = !selected;
     drawBB(startX, startY, endX - startX, endY - startY);
     showBBInfo();
 }
@@ -223,6 +261,11 @@ function showBBInfo(){
 function drawSelection(x, y, w, h) {
     clearCanvas(c);
     c.fillRect(x, y, w, h);
+}
+
+function drawSelectedSelection(x, y, w, h){
+    clearCanvas(c);
+    mC.fillRect(x, y, w, h);
 }
 
 
