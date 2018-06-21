@@ -141,20 +141,23 @@ function mouseHold(event) {
     console.log(`currX ${startX} currY ${startY}`);
     //selected = !selected;
     var index = withinTheBB(pos, output.annotes);
-    if( index != -1)
+    scale = {
+        width: document.getElementById('canvas-holder').clientWidth,
+        height: document.getElementById('canvas-holder').clientHeight
+    };
+    if( (index != -1) && shouldDraw == true )
     {
-      scale = {
-          width: document.getElementById('canvas-holder').clientWidth,
-          height: document.getElementById('canvas-holder').clientHeight
-      };
       var obj = output.annotes[index];
       var loc = denormalizeBox(obj, scale);
       x = loc.startX;
       y = loc.startY;
       w = loc.endX - x;
       h = loc.endY - y;
+      drawSelection(x, y, w, h);
+    }
+    if( index != -1)
+    {
       selected = !selected;
-
       drawSelectedSelection(x, y, w, h);
 
     }
@@ -174,7 +177,7 @@ function mouseMove(event) {
     }
 
     var index = withinTheBB(pos, output.annotes);
-    if(index == -1){
+    if((index == -1) && (shouldDraw == false)){
     clearCanvas(c);
   }
     else {
